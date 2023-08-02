@@ -1,0 +1,49 @@
+#include <Stepper.h>
+
+int stepsPerRevolution = 2048;
+int motSpeed = 10;
+Stepper myStepper(stepsPerRevolution, 8, 10, 9, 11);
+
+const int ledR = 5; // Pin del LED rojo del LED RGB (conectado al pin 5 de Arduino)
+const int ledG = 6; // Pin del LED verde del LED RGB (conectado al pin 6 de Arduino)
+const int ledB = 7; // Pin del LED azul del LED RGB (conectado al pin 7 de Arduino)
+
+void setup() {
+  myStepper.setSpeed(motSpeed);
+
+  // Inicializar comunicación serial para comunicarse con el módulo Bluetooth HC-06
+  Serial.begin(9600);
+
+  // Configurar los pines del LED RGB como salidas
+  pinMode(ledR, OUTPUT);
+  pinMode(ledG, OUTPUT);
+  pinMode(ledB, OUTPUT);
+}
+
+void loop() {
+  // Verificar si hay datos disponibles en el puerto serial
+  if (Serial.available() > 0) {
+    // Leer el dato recibido del módulo Bluetooth
+    char data = Serial.read();
+
+    // Si el dato recibido es 'A', mover el motor 136 pasos y encender el LED azul
+    if (data == 'A') {
+      myStepper.step(136);
+      digitalWrite(ledR, LOW); // Apagar LED rojo
+      digitalWrite(ledG, LOW); // Apagar LED verde
+      digitalWrite(ledB, HIGH); // Encender LED azul
+    }
+    // Si el dato recibido es 'B', encender el LED verde y apagar los otros colores
+    else if (data == 'B') {
+      digitalWrite(ledR, LOW); // Apagar LED rojo
+      digitalWrite(ledG, HIGH); // Encender LED verde
+      digitalWrite(ledB, LOW); // Apagar LED azul
+    }
+    // Si no se recibe nada, encender el LED rojo y apagar los otros colores
+    else {
+      digitalWrite(ledR, HIGH); // Encender LED rojo
+      digitalWrite(ledG, LOW); // Apagar LED verde
+      digitalWrite(ledB, LOW); // Apagar LED azul
+    }
+  }
+}
